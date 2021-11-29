@@ -1,5 +1,6 @@
 import 'package:fble/Common/Constants.dart';
 import 'package:fble/Model/DeviceModel.dart';
+import 'package:fble/Page/DeviceSettingPage.dart';
 import 'package:fble/Utils/Utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,9 @@ class _DeviceRegPageState extends State<DeviceRegPage> {
     DeviceModel item1 = new DeviceModel(Constants.CONNECTED, 'AAAA-AAAA', true);
     DeviceModel item2 = new DeviceModel(Constants.CONNECTING, 'BBBB-BBBB', false);
     DeviceModel item3 = new DeviceModel(Constants.CUT_OFF, 'CCCC-CCCC', false);
-    deviceList.add(item1); deviceList.add(item2); deviceList.add(item3);
+    DeviceModel item4 = new DeviceModel(Constants.CUT_OFF, 'DDDD-DDDD', false);
+    DeviceModel item5 = new DeviceModel(Constants.CUT_OFF, 'EEEE-EEEE', false);
+    deviceList.add(item1); deviceList.add(item2); deviceList.add(item3); deviceList.add(item4); deviceList.add(item5);
   }
 
   @override
@@ -50,10 +53,12 @@ class _DeviceRegPageState extends State<DeviceRegPage> {
                 ],
               ),
             ),
+
+            // Registered device
             Container(
               margin: EdgeInsets.only(top: 20),
               padding: EdgeInsets.only(left: 20),
-              width: double.infinity, height: 60,
+              width: double.infinity, height: 65,
               color: AppColors.menuBgColor,
               child: Row(
                 children: [
@@ -62,7 +67,7 @@ class _DeviceRegPageState extends State<DeviceRegPage> {
               ),
             ),
             Container(
-              height: MediaQuery.of(context).size.height / 2 - 100,
+              height: MediaQuery.of(context).size.height / 2 - 150,
               child: ListView.separated(
                   padding: EdgeInsets.only(top: 1),
                   itemBuilder: (context, index) {
@@ -103,8 +108,50 @@ class _DeviceRegPageState extends State<DeviceRegPage> {
                           SizedBox(width: 5,),
                           Text('sharing\nscreen', style: TextStyle(color: deviceList[index].isScreenSharing ? Colors.white : Colors.transparent),),
                           IconButton(onPressed: () {
-
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => DeviceSettingPage(deviceList[index])));
                           }, icon: Icon(Icons.settings_outlined, color: Colors.white,))
+                        ],
+                      ),
+                    );
+                  },
+                  separatorBuilder: (context, index) {
+                    return Container(width: double.infinity, height: 0.5, color: AppColors.bgColor,);
+                  },
+                  itemCount: deviceList.length),
+            ),
+
+            // other devices
+            Container(
+              margin: EdgeInsets.only(top: 10),
+              padding: EdgeInsets.only(left: 20),
+              width: double.infinity, height: 65,
+              color: AppColors.menuBgColor,
+              child: Row(
+                children: [
+                  Text('その他のデバイス', style: TextStyle(color: Colors.white, fontSize: 20),)
+                ],
+              ),
+            ),
+            Container(
+              height: MediaQuery.of(context).size.height / 2 - 180,
+              child: ListView.separated(
+                  padding: EdgeInsets.only(top: 1),
+                  itemBuilder: (context, index) {
+                    return Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: 55,
+                      color: AppColors.menuBgColor,
+                      child: Row(
+                        children: [
+                          SizedBox(width: 30,),
+                          Text(deviceList[index].name, style: TextStyle(color: Colors.white, fontSize: 16),),
+                          Spacer(),
+                          Stack(
+                            children: [
+                              Text('接続する', style: TextStyle(color: Colors.grey),)
+                            ],
+                          ),
+                          SizedBox(width: 20,),
                         ],
                       ),
                     );

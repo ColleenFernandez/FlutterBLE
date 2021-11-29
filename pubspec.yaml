@@ -17,6 +17,10 @@ dependencies:
 
   getwidget: ^2.0.4
   cupertino_icons: ^1.0.2
+  segment_display: ^0.5.0
+  battery_indicator: ^0.1.1
+  smooth_page_indicator: ^1.0.0+2
+
 
 
 dev_dependencies:
@@ -28,3 +32,19 @@ dev_dependencies:
 flutter:
 
   uses-material-design: true
+  assets:
+    - assets/images/ic_arrow_up.png
+    - assets/images/photo.png
+    - assets/images/ic_clock.png
+    - assets/images/ic_sms.png
+    - assets/images/ic_sns.png
+    - assets/images/ic_mail.png
+    - assets/images/ic_news.png
+    - assets/images/ic_noti.png
+    - assets/images/ic_map.png
+    - assets/images/ic_photo.png
+    - assets/images/ic_timetable.png
+    - assets/images/ic_calendar.png
+    - assets/images/ic_notepad.png
+    - assets/images/ic_battery.png
+

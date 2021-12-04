@@ -1,12 +1,15 @@
 // @dart=2.9
 
 import 'package:fble/Page/MainPage.dart';
+import 'package:fble/Temp/TempPage.dart';
 import 'package:flutter/material.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(MyApp());
+  runApp(FlutterBlueApp());
+
+  //runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {

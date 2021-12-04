@@ -14,27 +14,10 @@ class MainPage extends StatefulWidget{
 class _MainPageState extends State<MainPage> {
 
   int selectedIndex = 0;
-  FlutterBlue flutterBlue = FlutterBlue.instance;
 
   @override
   void initState() {
     super.initState();
-
-    bleListener();
-  }
-
-  void bleListener(){
-    flutterBlue.startScan(
-        scanMode: ScanMode.lowLatency,
-        allowDuplicates: false,
-        timeout: Duration(seconds: 30));
-    flutterBlue.scanResults.listen((results) {
-      results.forEach((element) {
-        if (element.device.name.isNotEmpty){
-          LogUtils.log('device ID ====> ${element.device.name}');
-        }
-      });
-    });
   }
 
   @override

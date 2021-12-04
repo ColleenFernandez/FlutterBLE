@@ -20,8 +20,8 @@ dependencies:
   segment_display: ^0.5.0
   battery_indicator: ^0.1.1
   smooth_page_indicator: ^1.0.0+2
-
-
+  flutter_blue: ^0.8.0
+  logger: ^1.1.0 # logger
 
 dev_dependencies:
   flutter_test:

@@ -2,7 +2,9 @@ import 'package:fble/Assets/AppColors.dart';
 import 'package:fble/Page/DeviceRegPage.dart';
 import 'package:fble/Page/HomePage.dart';
 import 'package:fble/Page/SettingPage.dart';
+import 'package:fble/Utils/LogUtils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 
 class MainPage extends StatefulWidget{
   @override
@@ -12,9 +14,32 @@ class MainPage extends StatefulWidget{
 class _MainPageState extends State<MainPage> {
 
   int selectedIndex = 0;
+  FlutterBlue flutterBlue = FlutterBlue.instance;
+
+  @override
+  void initState() {
+    super.initState();
+
+    bleListener();
+  }
+
+  void bleListener(){
+    flutterBlue.startScan(
+        scanMode: ScanMode.lowLatency,
+        allowDuplicates: false,
+        timeout: Duration(seconds: 30));
+    flutterBlue.scanResults.listen((results) {
+      results.forEach((element) {
+        if (element.device.name.isNotEmpty){
+          LogUtils.log('device ID ====> ${element.device.name}');
+        }
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: IndexedStack(
         index: selectedIndex,

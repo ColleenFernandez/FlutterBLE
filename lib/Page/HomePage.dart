@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
   List<SettingModel> settingList = [];
   List<MenuModel> menuList = [];
   late TabController settingTabController;
-  int selectedTab = 0, pageCnt = 0, menuCnt = 0;
+  int selectedTab = 0;
   final PageController pageviewController = PageController(initialPage: 0);
 
   @override
@@ -270,23 +270,23 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
               ),
             ),
             Container(
-              height: 250,
+              height: 180,
               child: PageView.builder(
-                itemCount: (menuList.length / 12).toInt(),
+                  itemCount: Utils.roundUp(menuList.length / 8.0),
                   controller: pageviewController,
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (context, pageIndex) {
                     return GridView.builder(
-                        padding: EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 10),
+                        padding: EdgeInsets.only(left: 10, right: 10, top: 20, bottom: 10),
                         shrinkWrap: true,
-                        itemCount: 12,
+                        itemCount: (menuList.length - pageIndex * 8) >= 8 ? 8 : menuList.length - pageIndex * 8 ,
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           mainAxisSpacing: 0,
                           crossAxisSpacing: 10,
                           crossAxisCount: 4,
                         ),
                         itemBuilder: (context, index) {
-                          int menuIndex = pageIndex * 12 + index;
+                          int menuIndex = pageIndex * 8 + index;
                           return InkWell(
                             splashColor: Colors.transparent,
                             onTap: () {
@@ -297,14 +297,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
                             child: Stack(
                               children: [
                                 Container(
-                                  width: 60, height: 50,
+                                  width: 50, height: 50,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.all(Radius.circular(30)),
                                     boxShadow:[
                                       BoxShadow(
                                           color: menuList[menuIndex].isSelected ? AppColors.greenLEDColor.withAlpha(60) : Colors.transparent,
                                           blurRadius:10.0,
-                                          offset: Offset(10, 10)
+                                          offset: Offset(15, 15)
                                       )
                                     ],
                                   ),
@@ -326,7 +326,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
             SizedBox(height: 10,),
             SmoothPageIndicator(
                 controller: pageviewController,  // PageController
-                count:  (menuList.length / 12 ).toInt(),
+                count:  Utils.roundUp(menuList.length / 8.0),
                 effect:  WormEffect(
                   dotWidth: 10, dotHeight: 10,
                   dotColor: Colors.grey,

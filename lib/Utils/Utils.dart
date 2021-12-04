@@ -4,6 +4,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Utils {
+
+
+
+  static int roundUp(double number) {
+    return number.isNegative ? number.floor() : number.ceil();
+  }
+
   static getLEDColor (int status) {
     if (status == Constants.CONNECTING)
       return AppColors.yellowLEDColor;

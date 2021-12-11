@@ -1,12 +1,17 @@
+
+import 'dart:convert';
+
+import 'package:fble/Assets/AppColors.dart';
+import 'package:fble/Common/Common.dart';
 import 'package:fble/Common/Constants.dart';
 import 'package:fble/Model/DeviceModel.dart';
+import 'package:fble/Model/NativeComModel.dart';
 import 'package:fble/Page/DeviceSettingPage.dart';
+import 'package:fble/Utils/LogUtils.dart';
 import 'package:fble/Utils/Utils.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:getwidget/components/checkbox/gf_checkbox.dart';
-import '../Assets/AppColors.dart';
-
+import 'package:flutter/services.dart';
+import 'package:getwidget/getwidget.dart';
 
 class DeviceRegPage extends StatefulWidget{
   @override
@@ -15,22 +20,53 @@ class DeviceRegPage extends StatefulWidget{
 
 class _DeviceRegPageState extends State<DeviceRegPage> {
 
-  List<DeviceModel> deviceList = [];
+  List<DeviceModel> allDeviceList = [];
+  List<DeviceModel> registeredDevices = [];
+  bool isScanning = false;
+  NativeComModel nativeComModel = new NativeComModel();
 
   @override
   void initState() {
     super.initState();
 
-    loadDeviceList();
   }
 
-  void loadDeviceList() {
-    DeviceModel item1 = new DeviceModel(Constants.CONNECTED, 'AAAA-AAAA', true);
-    DeviceModel item2 = new DeviceModel(Constants.CONNECTING, 'BBBB-BBBB', false);
-    DeviceModel item3 = new DeviceModel(Constants.CUT_OFF, 'CCCC-CCCC', false);
-    DeviceModel item4 = new DeviceModel(Constants.CUT_OFF, 'DDDD-DDDD', false);
-    DeviceModel item5 = new DeviceModel(Constants.CUT_OFF, 'EEEE-EEEE', false);
-    deviceList.add(item1); deviceList.add(item2); deviceList.add(item3); deviceList.add(item4); deviceList.add(item5);
+  Future<void> scanDevice() async {
+    try {
+      nativeComModel.command = Constants.SCAN_DEVICE;
+      nativeComModel.passValue = '';
+
+      final res = await Common.platform.invokeMethod(jsonEncode(nativeComModel.toJSON()));
+
+      LogUtils.log('res ===> ${res}');
+
+      allDeviceList.addAll(DeviceModel().getList(jsonDecode(res)));
+
+    }on PlatformException catch (e) {
+      LogUtils.log('error ==> ${e.toString()}');
+    }
+
+    isScanning = false;
+    setState(() {});
+  }
+
+  Future<void> connectDevice(DeviceModel model, int index) async {
+    try {
+      nativeComModel.command = Constants.CONNECT_DEVICE;
+      nativeComModel.passValue = model.address;
+
+      final res = await Common.platform.invokeMethod(jsonEncode(nativeComModel.toJSON()));
+
+      LogUtils.log('res ===> ${res}');
+
+      allDeviceList.addAll(DeviceModel().getList(jsonDecode(res)));
+
+    }on PlatformException catch (e) {
+      LogUtils.log('error ==> ${e.toString()}');
+    }
+
+    allDeviceList[index].isConnecting = false;
+    setState(() {});
   }
 
   @override
@@ -47,9 +83,27 @@ class _DeviceRegPageState extends State<DeviceRegPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Spacer(), Spacer(),
                   Icon(Icons.system_security_update_good_outlined, color: Colors.white, size: 30,),
                   SizedBox(width: 10,),
-                  Text('登録デバイス一覧', style: TextStyle(color: Colors.white, fontSize: 20),)
+                  Text('登録デバイス一覧', style: TextStyle(color: Colors.white, fontSize: 20),),
+                  SizedBox(width: 20,),
+                  Container(
+                    width: 100, height: 50,
+                    child: Stack(
+                      children: [
+                        isScanning == true ? Align(
+                            child: Container(width: 30, height: 30, child: CircularProgressIndicator(color: AppColors.greenLEDColor,),
+                              alignment: Alignment.centerRight,))
+                            : TextButton(onPressed: () {
+                              scanDevice();
+                              setState(() {
+                                isScanning = true;
+                              });
+                        } , child: Text('スキャン', style: TextStyle(fontSize: 18),)),
+                      ],
+                    ),
+                  )
                 ],
               ),
             ),
@@ -82,33 +136,33 @@ class _DeviceRegPageState extends State<DeviceRegPage> {
                             margin: EdgeInsets.only(left: 15, right: 20),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              color: Utils.getLEDColor(deviceList[index].status),
+                              color: Utils.getLEDColor(allDeviceList[index].status),
                               boxShadow:[
                                 BoxShadow(
-                                    color: Utils.getLEDColor(deviceList[index].status),
+                                    color: Utils.getLEDColor(allDeviceList[index].status),
                                     blurRadius: 7.0,
                                     offset: Offset(0.0, 0.75)
                                 )
                               ],
                             ),
                           ),
-                          Text(deviceList[index].name, style: TextStyle(color: Colors.white, fontSize: 16),),
+                          Text(allDeviceList[index].name, style: TextStyle(color: Colors.white, fontSize: 16),),
                           Spacer(),
                           GFCheckbox(
-                            size: 25,
-                            inactiveBorderColor: Colors.white,
-                            inactiveBgColor: Colors.transparent,
-                            activeBgColor: AppColors.greenLEDColor,
+                              size: 25,
+                              inactiveBorderColor: Colors.white,
+                              inactiveBgColor: Colors.transparent,
+                              activeBgColor: AppColors.greenLEDColor,
                               onChanged: (value) {
                                 setState(() {
-                                  deviceList[index].isScreenSharing = value;
+                                  allDeviceList[index].isScreenSharing = value;
                                 });
                               },
-                              value: deviceList[index].isScreenSharing),
+                              value: allDeviceList[index].isScreenSharing),
                           SizedBox(width: 5,),
-                          Text('sharing\nscreen', style: TextStyle(color: deviceList[index].isScreenSharing ? Colors.white : Colors.transparent),),
+                          Text('sharing\nscreen', style: TextStyle(color: allDeviceList[index].isScreenSharing ? Colors.white : Colors.transparent),),
                           IconButton(onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => DeviceSettingPage(deviceList[index])));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => DeviceSettingPage(allDeviceList[index])));
                           }, icon: Icon(Icons.settings_outlined, color: Colors.white,))
                         ],
                       ),
@@ -117,7 +171,7 @@ class _DeviceRegPageState extends State<DeviceRegPage> {
                   separatorBuilder: (context, index) {
                     return Container(width: double.infinity, height: 0.5, color: AppColors.bgColor,);
                   },
-                  itemCount: deviceList.length),
+                  itemCount: allDeviceList.length),
             ),
 
             // other devices
@@ -133,6 +187,7 @@ class _DeviceRegPageState extends State<DeviceRegPage> {
               ),
             ),
             Container(
+              padding: EdgeInsets.only(left: 30, right: 30),
               height: MediaQuery.of(context).size.height / 2 - 180,
               child: ListView.separated(
                   padding: EdgeInsets.only(top: 1),
@@ -143,15 +198,24 @@ class _DeviceRegPageState extends State<DeviceRegPage> {
                       color: AppColors.menuBgColor,
                       child: Row(
                         children: [
-                          SizedBox(width: 30,),
-                          Text(deviceList[index].name, style: TextStyle(color: Colors.white, fontSize: 16),),
+                          Text(allDeviceList[index].name, style: TextStyle(color: Colors.white, fontSize: 16),),
                           Spacer(),
-                          Stack(
-                            children: [
-                              Text('接続する', style: TextStyle(color: Colors.grey),)
-                            ],
+                          Container(
+                            width: 100, height: 50,
+                            child: Stack(
+                              children: [
+                                allDeviceList[index].isConnecting == true ? Align(
+                                    child: Container(width: 30, height: 30, child: CircularProgressIndicator(color: AppColors.greenLEDColor,),
+                                      alignment: Alignment.centerRight,))
+                                    : TextButton(onPressed: () {
+                                  connectDevice(allDeviceList[index], index);
+                                  setState(() {
+                                    allDeviceList[index].isConnecting = true;
+                                  });
+                                } , child: Text('接続する', style: TextStyle(color: Colors.grey),)),
+                              ],
+                            ),
                           ),
-                          SizedBox(width: 20,),
                         ],
                       ),
                     );
@@ -159,7 +223,7 @@ class _DeviceRegPageState extends State<DeviceRegPage> {
                   separatorBuilder: (context, index) {
                     return Container(width: double.infinity, height: 0.5, color: AppColors.bgColor,);
                   },
-                  itemCount: deviceList.length),
+                  itemCount: allDeviceList.length),
             ),
           ],
         ),

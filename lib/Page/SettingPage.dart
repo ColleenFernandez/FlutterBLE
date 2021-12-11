@@ -1,3 +1,4 @@
+
 import 'package:fble/Assets/AppColors.dart';
 import 'package:flutter/material.dart';
 
@@ -170,7 +171,7 @@ class _SettingPageState extends State<SettingPage>  with TickerProviderStateMixi
             Container(
               height: 92,
               child: ListView.separated(
-                padding: EdgeInsets.only(top: 1),
+                  padding: EdgeInsets.only(top: 1),
                   itemBuilder: (context, index) {
                     return Container(
                       width: MediaQuery.of(context).size.width,

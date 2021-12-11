@@ -1,11 +1,9 @@
+
 import 'package:fble/Assets/AppColors.dart';
 import 'package:fble/Common/Constants.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Utils {
-
-
 
   static int roundUp(double number) {
     return number.isNegative ? number.floor() : number.ceil();

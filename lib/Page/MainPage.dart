@@ -1,10 +1,9 @@
+
 import 'package:fble/Assets/AppColors.dart';
 import 'package:fble/Page/DeviceRegPage.dart';
 import 'package:fble/Page/HomePage.dart';
 import 'package:fble/Page/SettingPage.dart';
-import 'package:fble/Utils/LogUtils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_blue/flutter_blue.dart';
 
 class MainPage extends StatefulWidget{
   @override

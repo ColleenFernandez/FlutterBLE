@@ -1,8 +1,8 @@
+
 import 'package:battery_indicator/battery_indicator.dart';
 import 'package:fble/Assets/AppColors.dart';
-import 'package:fble/Assets/Assets.dart';
+import 'package:fble/Assets/Assets..dart';
 import 'package:fble/Common/Constants.dart';
-import 'package:fble/CustomWidget/CustomClipPath.dart';
 import 'package:fble/CustomWidget/StsImgView.dart';
 import 'package:fble/CustomWidget/TooltipShapeBorder.dart';
 import 'package:fble/Model/DeviceModel.dart';
@@ -38,13 +38,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
   }
 
   void loadData() {
-    DeviceModel item1 = new DeviceModel(Constants.CONNECTED, 'AAAA-AAAA', true);
-    DeviceModel item2 = new DeviceModel(Constants.CONNECTING, 'BBBB-BBBB', false);
-    DeviceModel item3 = new DeviceModel(Constants.CUT_OFF, 'CCCC-CCCC', false);
-    DeviceModel item4 = new DeviceModel(Constants.CUT_OFF, 'DDDD-DDDD', false);
-    DeviceModel item5 = new DeviceModel(Constants.CUT_OFF, 'EEEE-EEEE', false);
-    deviceList.add(item1); deviceList.add(item2); deviceList.add(item3); deviceList.add(item4); deviceList.add(item5);
-    
+
     SettingModel model1 = new SettingModel('設定1', true);
     SettingModel model2 = new SettingModel('設定2', false);
     SettingModel model3 = new SettingModel('設定3', false);
@@ -117,35 +111,35 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
             Row(
               children: [
                 Container(
-                  width: MediaQuery.of(context).size.width - 50,
-                  height: 40,
-                  child: ListView.builder(
-                      shrinkWrap: true,
-                      scrollDirection: Axis.horizontal,
-                      itemCount: settingList.length,
-                      itemBuilder: (context, index) {
-                        return InkWell(
-                          onTap: () {
-                            selectedTab = index;
-                            for (int i = 0; i < settingList.length; i++){
-                              settingList[i].isSelected = false;
-                            }
-                            settingList[selectedTab].isSelected = true;
-                            setState(() {});
-                          },
-                          child: Container(
-                            height: 40,
-                            padding: EdgeInsets.only(left: 25, right: 25),
-                            margin: EdgeInsets.only(left: 20),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(5)),
-                              border: Border.all(color: Colors.white),
-                              color: settingList[index].isSelected ? AppColors.greenLEDColor : Colors.transparent
+                    width: MediaQuery.of(context).size.width - 50,
+                    height: 40,
+                    child: ListView.builder(
+                        shrinkWrap: true,
+                        scrollDirection: Axis.horizontal,
+                        itemCount: settingList.length,
+                        itemBuilder: (context, index) {
+                          return InkWell(
+                            onTap: () {
+                              selectedTab = index;
+                              for (int i = 0; i < settingList.length; i++){
+                                settingList[i].isSelected = false;
+                              }
+                              settingList[selectedTab].isSelected = true;
+                              setState(() {});
+                            },
+                            child: Container(
+                              height: 40,
+                              padding: EdgeInsets.only(left: 25, right: 25),
+                              margin: EdgeInsets.only(left: 20),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(5)),
+                                  border: Border.all(color: Colors.white),
+                                  color: settingList[index].isSelected ? AppColors.greenLEDColor : Colors.transparent
+                              ),
+                              child: Center(child: Text(settingList[index].name, style: TextStyle(color: settingList[index].isSelected ? Colors.black : Colors.white),)),
                             ),
-                            child: Center(child: Text(settingList[index].name, style: TextStyle(color: settingList[index].isSelected ? Colors.black : Colors.white),)),
-                          ),
-                        );
-                      })
+                          );
+                        })
                 ),
                 IconButton(onPressed: () {
 
@@ -231,8 +225,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
                               width: double.infinity,
                               margin: EdgeInsets.only(top: 10),
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
-                                border: Border.all(color: AppColors.greenLEDColor)
+                                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                                  border: Border.all(color: AppColors.greenLEDColor)
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,16 +315,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
                             ),
                           );
                         });
-              }),
+                  }),
             ),
             SizedBox(height: 10,),
             SmoothPageIndicator(
                 controller: pageviewController,  // PageController
                 count:  Utils.roundUp(menuList.length / 8.0),
                 effect:  WormEffect(
-                  dotWidth: 10, dotHeight: 10,
-                  dotColor: Colors.grey,
-                  activeDotColor: AppColors.greenLEDColor
+                    dotWidth: 10, dotHeight: 10,
+                    dotColor: Colors.grey,
+                    activeDotColor: AppColors.greenLEDColor
                 ),  // your preferred effect
                 onDotClicked: (index){}
             ),

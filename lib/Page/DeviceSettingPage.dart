@@ -1,7 +1,7 @@
+
 import 'package:fble/Assets/AppColors.dart';
 import 'package:fble/Model/DeviceModel.dart';
 import 'package:flutter/material.dart';
-import 'package:getwidget/components/toggle/gf_toggle.dart';
 import 'package:getwidget/getwidget.dart';
 
 class DeviceSettingPage extends StatefulWidget {

@@ -1,6 +1,6 @@
+
 import 'dart:io';
 
-import 'package:fble/Assets/Assets.dart';
 import 'package:flutter/material.dart';
 
 class StsImgView extends StatefulWidget{

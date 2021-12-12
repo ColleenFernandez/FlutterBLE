@@ -63,7 +63,7 @@ public class MainActivity extends FlutterActivity {
         service = BluetoothService.getDefaultInstance();
     }
 
-    /*private void connectDevice(String address){
+    private void connectDevice(String address){
         BluetoothDevice device = null;
         for (BluetoothDevice item : allDevices){
             if (item.getAddress().equals(address)){
@@ -77,30 +77,38 @@ public class MainActivity extends FlutterActivity {
         service.setOnEventCallback(new BluetoothService.OnBluetoothEventCallback() {
             @Override
             public void onDataRead(byte[] buffer, int length) {
+                LogUtil.e("setOnEventCallback");
             }
 
             @Override
             public void onStatusChange(BluetoothStatus status) {
+                LogUtil.e("onStatusChange" + status.name());
             }
 
             @Override
             public void onDeviceName(String deviceName) {
+                LogUtil.e("onDeviceName");
             }
 
             @Override
             public void onToast(String message) {
+                LogUtil.e("onToast");
             }
 
             @Override
             public void onDataWrite(byte[] buffer) {
+                LogUtil.e("onDataWrite");
             }
         });
 
         service.connect(device); // See also service.disconnect();
-    }*/
+    }
 
     @SuppressLint("MissingPermission")
     private void scanDevice(){
+
+        LogUtil.e("scan device ");
+
         service.setOnScanCallback(new BluetoothService.OnBluetoothScanCallback() {
             @Override
             public void onDeviceDiscovered(BluetoothDevice device, int rssi) {
@@ -163,9 +171,9 @@ public class MainActivity extends FlutterActivity {
 
                             if (nativeComModel.command.equals("scanDevice")){
                                 scanDevice();
-                            }else if (nativeComModel.command.equals("connect")){
+                            }else if (nativeComModel.command.equals("connectDevice")){
                                 String address = nativeComModel.passValue;
-                                //connectDevice(address);
+                                connectDevice(address);
                             } else {
                                 result.notImplemented();
                             }

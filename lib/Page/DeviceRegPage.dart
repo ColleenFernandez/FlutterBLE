@@ -40,6 +40,7 @@ class _DeviceRegPageState extends State<DeviceRegPage> {
 
       LogUtils.log('res ===> ${res}');
 
+      allDeviceList.clear();
       allDeviceList.addAll(DeviceModel().getList(jsonDecode(res)));
 
     }on PlatformException catch (e) {
@@ -58,8 +59,6 @@ class _DeviceRegPageState extends State<DeviceRegPage> {
       final res = await Common.platform.invokeMethod(jsonEncode(nativeComModel.toJSON()));
 
       LogUtils.log('res ===> ${res}');
-
-      allDeviceList.addAll(DeviceModel().getList(jsonDecode(res)));
 
     }on PlatformException catch (e) {
       LogUtils.log('error ==> ${e.toString()}');
@@ -187,12 +186,12 @@ class _DeviceRegPageState extends State<DeviceRegPage> {
               ),
             ),
             Container(
-              padding: EdgeInsets.only(left: 30, right: 30),
               height: MediaQuery.of(context).size.height / 2 - 180,
               child: ListView.separated(
                   padding: EdgeInsets.only(top: 1),
                   itemBuilder: (context, index) {
                     return Container(
+                      padding: EdgeInsets.only(left: 30, right: 10),
                       width: MediaQuery.of(context).size.width,
                       height: 55,
                       color: AppColors.menuBgColor,

@@ -20,6 +20,7 @@ dependencies:
   flutter_blue: ^0.8.0
   logger: ^1.1.0 # logger
   sqflite: ^2.0.1 # sqlite
+  permission_handler: ^8.3.0
 
 dev_dependencies:
   flutter_test:

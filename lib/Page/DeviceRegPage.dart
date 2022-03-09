@@ -28,8 +28,8 @@ class _DeviceRegPageState extends State<DeviceRegPage> {
   @override
   void initState() {
     super.initState();
-
   }
+
 
   Future<void> scanDevice() async {
     try {

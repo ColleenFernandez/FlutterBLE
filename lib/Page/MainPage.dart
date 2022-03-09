@@ -1,9 +1,10 @@
-
 import 'package:fble/Assets/AppColors.dart';
 import 'package:fble/Page/DeviceRegPage.dart';
 import 'package:fble/Page/HomePage.dart';
 import 'package:fble/Page/SettingPage.dart';
+import 'package:fble/Utils/LogUtils.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class MainPage extends StatefulWidget{
   @override
@@ -17,6 +18,36 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
+
+    checkPermission();
+  }
+
+  void checkPermission() async{
+    final blePemStatus = await Permission.bluetooth.status;
+    LogUtils.log('blePemStatus ===> ${blePemStatus}');
+    if (!blePemStatus.isGranted){
+      Map<Permission, PermissionStatus> blePemReq = await [
+        Permission.bluetooth,
+        Permission.bluetoothScan,
+        Permission.bluetoothAdvertise,
+        Permission.bluetoothConnect
+      ].request();
+
+      LogUtils.log('permission ====> ${blePemReq}');
+    }
+
+    final locationPemStatus = await Permission.location.status;
+    LogUtils.log('locationPemStatus ===> ${locationPemStatus}');
+    if (!locationPemStatus.isGranted){
+      Map<Permission, PermissionStatus> locationPemReq = await [
+        Permission.location,
+        Permission.locationAlways,
+        Permission.locationWhenInUse,
+        Permission.accessMediaLocation
+      ].request();
+
+      LogUtils.log('locationPemReq ====> ${locationPemReq}');
+    }
   }
 
   @override

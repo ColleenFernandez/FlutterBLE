@@ -1,17 +1,22 @@
 package com.sts.fble;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothClassicService;
-import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothConfiguration;
-import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothService;
-import com.github.douglasjunior.bluetoothclassiclibrary.BluetoothStatus;
 import com.sts.fble.Model.DeviceModel;
 import com.sts.fble.Model.NativeComModel;
 import com.sts.fble.Utils.LogUtil;
@@ -20,7 +25,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.annotation.Native;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -33,36 +43,67 @@ import io.flutter.plugin.common.MethodChannel;
 
 public class MainActivity extends FlutterActivity {
 
+    final  int REQUEST_ENABLE_BT = 101;    
     private static MethodChannel.Result result;
     private String CHANNEL_SCAN = "com.sts.fble/bluetooth/";
 
-    BluetoothConfiguration config;
-    BluetoothService service;
+    private BluetoothAdapter bluetoothAdapter;
     ArrayList<BluetoothDevice> allDevices = new ArrayList<>();
-
+    
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Register for broadcasts when a device is discovered.
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        registerReceiver(receiver, filter);
+        
         initBluetoothConfig();
     }
 
+    // Create a BroadcastReceiver for ACTION_FOUND.
+    @SuppressLint("MissingPermission")
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+                boolean isAlreadyRegistered = false;
+                for (BluetoothDevice item : allDevices) {
+                    if (item.getAddress().equals(device.getAddress())){
+                        isAlreadyRegistered = true;
+                        break;
+                    }
+                }
+
+                if (!isAlreadyRegistered){
+                    if (device.getName() != null && !device.getName().isEmpty()){
+                        allDevices.add(device);    
+                    }                    
+                }
+            }
+        }
+    };
+    
+    @SuppressLint("MissingPermission")
     private void initBluetoothConfig(){
-        config = new BluetoothConfiguration();
-        config.context = getApplicationContext();
-        config.bluetoothServiceClass = BluetoothClassicService.class;
-        config.bufferSize = 1024;
-        config.characterDelimiter = '\n';
-        config.deviceName = "FBluetooth";
-        config.callListenersInMainThread = true;
-
-        config.uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb"); // Required
-
-        BluetoothService.init(config);
-
-        service = BluetoothService.getDefaultInstance();
+        
+        // check bluetooth is supported
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter == null){
+            LogUtil.e("device doesn't support bluetooth");
+        }
+        
+        // check bluetooth enabled.
+        if (!bluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
     }
 
+    @SuppressLint("MissingPermission")
     private void connectDevice(String address){
         BluetoothDevice device = null;
         for (BluetoothDevice item : allDevices){
@@ -74,71 +115,46 @@ public class MainActivity extends FlutterActivity {
 
         if (device == null) return;
 
-        service.setOnEventCallback(new BluetoothService.OnBluetoothEventCallback() {
-            @Override
-            public void onDataRead(byte[] buffer, int length) {
-                LogUtil.e("setOnEventCallback");
-            }
+        IntentFilter filter = new IntentFilter("android.bluetooth.device.action.PAIRING_REQUEST");
+        registerReceiver(new PairingRequest(), filter);
+    }
 
-            @Override
-            public void onStatusChange(BluetoothStatus status) {
-                LogUtil.e("onStatusChange" + status.name());
-            }
+    public static class PairingRequest extends BroadcastReceiver {
+        public PairingRequest() {
+            super();
+        }
 
-            @Override
-            public void onDeviceName(String deviceName) {
-                LogUtil.e("onDeviceName");
+        @SuppressLint("MissingPermission")
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("android.bluetooth.device.action.PAIRING_REQUEST")) {
+                try {
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    int pin=intent.getIntExtra("android.bluetooth.device.extra.PAIRING_KEY", 0);
+                    //the pin in case you need to accept for an specific pin
+                    LogUtil.e("PIN ===> " + intent.getIntExtra("android.bluetooth.device.extra.PAIRING_KEY",0));
+                    //maybe you look for a name or address
+                    LogUtil.e("Bonded ==> " + device.getName());
+                    byte[] pinBytes;
+                    pinBytes = (""+pin).getBytes("UTF-8");
+                    device.setPin(pinBytes);
+                    //setPairing confirmation if neeeded
+                    device.setPairingConfirmation(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-
-            @Override
-            public void onToast(String message) {
-                LogUtil.e("onToast");
-            }
-
-            @Override
-            public void onDataWrite(byte[] buffer) {
-                LogUtil.e("onDataWrite");
-            }
-        });
-
-        service.connect(device); // See also service.disconnect();
+        }
     }
 
     @SuppressLint("MissingPermission")
     private void scanDevice(){
+        bluetoothAdapter.startDiscovery();
 
-        LogUtil.e("scan device ");
-
-        service.setOnScanCallback(new BluetoothService.OnBluetoothScanCallback() {
+        new Handler().postDelayed(new Runnable() {
             @Override
-            public void onDeviceDiscovered(BluetoothDevice device, int rssi) {
-
-                LogUtil.e("onDeviceDiscovered");
-
-                boolean isExist = false;
-                for (BluetoothDevice item : allDevices){
-                    if (item.getAddress().equals(device.getAddress())){
-                        isExist = true;
-                        break;
-                    }
-                }
-
-                if (device.getName() != null){
-                    if (!isExist){
-                        allDevices.add(device);
-                    }
-                }
-            }
-
-            @Override
-            public void onStartScan() {
-                LogUtil.e("onStartScan");
-                allDevices.clear();
-            }
-
-            @Override
-            public void onStopScan() {
-                LogUtil.e("onStopScan");
+            public void run() {
+                bluetoothAdapter.cancelDiscovery();
 
                 JSONArray jsonArray = new JSONArray();
                 for (BluetoothDevice device : allDevices){
@@ -148,9 +164,13 @@ public class MainActivity extends FlutterActivity {
 
                 MainActivity.result.success(jsonArray.toString());
             }
-        });
+        }, 10000);
+    }
 
-        service.startScan(); // See also service.stopScan();
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(receiver);  
     }
 
     @Override
